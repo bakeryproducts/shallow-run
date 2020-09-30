@@ -1,7 +1,12 @@
 README.md
 setup.py
-shrun/nb_run.py
+shrun/__init__.py
+shrun/convert.py
+shrun/n2s.py
+shrun/sftp.py
+shrun/sync.py
 shrun.egg-info/PKG-INFO
 shrun.egg-info/SOURCES.txt
 shrun.egg-info/dependency_links.txt
+shrun.egg-info/entry_points.txt
 shrun.egg-info/top_level.txt

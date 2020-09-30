@@ -1,0 +1,5 @@
+[console_scripts]
+shconv = shrun.convert:main
+shn2s = shrun.n2s:main
+shsync = shrun.sync:main
+

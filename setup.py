@@ -19,5 +19,12 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    scripts=['shrun/nb_run.py'],
+    entry_points={
+        'console_scripts': [
+            'shn2s = shrun.n2s:main',
+            'shsync = shrun.sync:main',
+            'shconv = shrun.convert:main',
+        ],
+    },
+    #scripts=['shrun/sync.py', 'shrun/n2s.py'],
 )
