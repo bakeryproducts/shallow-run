@@ -36,7 +36,7 @@ def main():
 
                },
         }
-        1 - alias for file
+        1 - file_id, alias for file
 
     usage:
         1. Without sycner class, using existing sftp:
