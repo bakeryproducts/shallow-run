@@ -26,5 +26,9 @@ setuptools.setup(
             'shconv = shrun.convert:main',
         ],
     },
+    install_requires=[
+          'fire',
+    ],
+    
     #scripts=['shrun/sync.py', 'shrun/n2s.py'],
 )
