@@ -24,7 +24,8 @@ setuptools.setup(
             'shn2s = shrun.n2s:main',
             'shsync = shrun.sync:main',
             'shconv = shrun.convert:main',
-            'shmulbuf = shrun.utils:multi_buf'
+            'shmulbuf = shrun.utils:multi_buf',
+            'shportmap = shrun.utils:port_map'
         ],
     },
     install_requires=[
