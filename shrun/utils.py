@@ -5,6 +5,7 @@
 # file to edit: dev_nb/utils.ipynb
 
 import os
+import sys
 import json
 import functools
 import subprocess
@@ -15,7 +16,10 @@ import dmenu
 
 
 def show(iters, defs=None, prompt='Choose: '):
-    try: return dmenu.show(iters, prompt=prompt)
+    try:
+        r = dmenu.show(iters, prompt=prompt)
+        if not r : sys.exit()
+        return r
     except: raise Exception
 
 def load_hist(path):
@@ -73,7 +77,7 @@ def multi_buf():
     font_size = 14
 
     cmd = f'clipmenu -m 0 -fn monospace:size={font_size} -nb "{colors[0]}" -nf "{colors[1]}" -sb "{colors[2]}"  -sf "{colors[3]}"'
-    paste_ext = '&& xdotool click --clearmodifiers 2'
+    #paste_ext = '&& xdotool click --clearmodifiers 2'
     subprocess.run(cmd, shell=True)
 
 
