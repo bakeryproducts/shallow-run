@@ -16,6 +16,7 @@
 # %%
 import os
 import shutil
+from PIL import Image
 from tqdm import tqdm
 import multiprocessing as mp
 from functools import partial
@@ -24,7 +25,17 @@ from contextlib import contextmanager
 import gdal
 import numpy as np
 
-# %%
+# %% [markdown]
+# # Todo
+#
+# - separate cutter from tiler
+# - cutter only extracts patches (from image or image-folder)
+# - tiler with zoom level
+# - standalone saver
+# - image-folder as src
+# - webserver / zmq
+#
+#
 
 # %%
 @contextmanager
@@ -40,20 +51,43 @@ def mp_func(foo, args, n):
     return [ri for r in res for ri in r]
 
 # %%
-
-# %%
-
-# %%
 p = '/home/sokolov/work/tmp/aerial/data/fortBragg/fortBragg1018_1-1.tif'
 #get_stats_gdal(p)
 
-# %%
-image_preprocessing_gdal(p, 'test', 8)
+# %% jupyter={"outputs_hidden": true}
+image_preprocessing_gdal(p, 'fortbragg', 8, block_size=(2048,2048))
 
 
 # %%
+# img/
+# img_0_0.ext
+# img_0_1.ext
+# img_x_y.ext
 
 # %%
+
+# %%
+def find_zoom(w,h, base_zoom=8):
+    return max(0, int(np.ceil(np.log2(max(w,h))-base_zoom)))
+
+def dump_info_json(name, w,h):
+    d =  {
+                'width':int(w),
+                'height':int(h),
+                'max_zoom':find_zoom(w,h),
+                'tile_size':2048
+            }
+    with open(str(name), 'w') as f:
+        json.dump(d, f)
+        
+def _write_block(block, name):
+    x, y, block_data = block
+    print(name, x,y,block_data.shape, block_data.dtype)
+    t = Image.fromarray(block_data.transpose((1,2,0)))
+    t.save(f'output/{name}_{x}_{y}.png')
+    #raise NotImplementedError
+    # DO SAVING
+
 
 # %%
 def get_stats_gdal(name, perc_cut=1, block_size=None, num_processes=1):
@@ -141,11 +175,14 @@ def _get_block_subgrid(input_name, sub_grid, block_size):
             if block.ndim < 3:
                 # one channel image
                 block = np.expand_dims(block, 0)
-            yield myX, myY, block
+            #yield myX, myY, block
+            yield X, Y, block
+            
             
 def image_preprocessing_gdal(input_name, 
                              output_name,
                              num_processes=1,
+                             block_size=None,
                              image_processing_func=None,
                              percentile_cut=None,
                              show_tqdm=True):
@@ -175,7 +212,8 @@ def image_preprocessing_gdal(input_name,
                                             image_processing_func=prep_func,
                                             percentile_cut=1)
     """
-    block_size = (256, 256)
+    if block_size is None:
+        block_size = (256, 256)
     #global_stats = get_stats_gdal(input_name, perc_cut=percentile_cut, num_processes=num_processes)
     nXBlocks, nYBlocks = _count_blocks(input_name, block_size=block_size)
 
@@ -186,6 +224,8 @@ def image_preprocessing_gdal(input_name,
     
     launch_mpq(_process_grid_blocks, r_args, _writer, (output_name, nXBlocks*nYBlocks), num_processes, show_tqdm)
 
+    _, dims, *_  = get_basics_gdal(name)
+    
 
 def clip_block(block , min_, max_):
     block = block.astype(np.float32)
@@ -266,10 +306,7 @@ def _writer(output_name, total_blocks, queue):
             print(e)
             break
 
-def _write_block(block, name):
-    x, y, block_data = block
-    #print(x,y,block_data.shape)
-    # DO SAVING
+
 
 def mp_func_wrapper(func, args):
     return func(*args)
